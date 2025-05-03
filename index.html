@@ -8,14 +8,22 @@
   <style>
     body {
       background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
     }
-    .logo {
-      max-width: 250px;
-      margin-bottom: 20px;
+
+    .logo-header {
+      background: url('IMG_5800.jpeg') no-repeat center;
+      background-size: contain;
+      height: 150px;
+      margin-bottom: 30px;
     }
+
     .btn-custom {
       margin: 10px;
     }
+
     .qr-section {
       background-color: #ffffff;
       border-radius: 10px;
@@ -23,15 +31,21 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       margin-top: 60px;
     }
+
+    .video-only {
+      margin-top: 100px;
+    }
+
+    .hide-on-video {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
-
-  <div class="container text-center py-5">
-    <img src="IMG_5800.jpeg" alt="Account Plug Logo" class="logo img-fluid" />
+  <div class="container text-center py-5" id="mainContent">
+    <div class="logo-header"></div>
     <h2 class="mb-4">Choose a Tutorial</h2>
 
-    <!-- Buttons -->
     <div class="d-grid gap-2 d-md-block">
       <a href="?video=facebook" class="btn btn-primary btn-custom">How to login Facebook using 2FA</a>
       <a href="?video=twitter" class="btn btn-info btn-custom">How to login Twitter using 2FA</a>
@@ -39,7 +53,6 @@
       <a href="?video=rambler" class="btn btn-dark btn-custom">How to login Rambler</a>
     </div>
 
-    <!-- WhatsApp Contact -->
     <div class="qr-section text-center">
       <h4>Need More Help?</h4>
       <p>Message Account Plug on WhatsApp for assistance.</p>
@@ -48,19 +61,14 @@
   </div>
 
   <!-- Video Modal -->
-  <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="videoModalLabel">Tutorial Video</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="stopVideo()"></button>
-        </div>
-        <div class="modal-body">
-          <video id="modalVideo" width="100%" height="auto" controls>
-            <source id="videoSource" src="" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
+  <div class="container text-center video-only" id="videoOnlyContainer" style="display: none;">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title" id="inlineVideoTitle">Tutorial Video</h5>
+        <video id="inlineVideo" width="100%" height="auto" controls autoplay>
+          <source id="inlineVideoSource" src="" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       </div>
     </div>
   </div>
@@ -85,23 +93,27 @@
       }
     };
 
+    function showVideoOnly(videoKey) {
+      const videoData = videoMap[videoKey];
+      if (videoData) {
+        document.getElementById("inlineVideoTitle").innerText = videoData.title;
+        document.getElementById("inlineVideoSource").src = videoData.src;
+        const video = document.getElementById("inlineVideo");
+        video.load();
+        video.play();
+
+        // Show only video
+        document.getElementById("mainContent").style.display = "none";
+        document.getElementById("videoOnlyContainer").style.display = "block";
+      }
+    }
+
     function getVideoFromURL() {
       const params = new URLSearchParams(window.location.search);
       const videoKey = params.get("video");
       if (videoKey && videoMap[videoKey]) {
-        const videoData = videoMap[videoKey];
-        document.getElementById("videoModalLabel").innerText = videoData.title;
-        document.getElementById("videoSource").src = videoData.src;
-        document.getElementById("modalVideo").load();
-        const videoModal = new bootstrap.Modal(document.getElementById("videoModal"));
-        videoModal.show();
+        showVideoOnly(videoKey);
       }
-    }
-
-    function stopVideo() {
-      const video = document.getElementById("modalVideo");
-      video.pause();
-      video.currentTime = 0;
     }
 
     window.onload = getVideoFromURL;
